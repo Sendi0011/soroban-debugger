@@ -197,7 +197,7 @@ Debug interactions between multiple contracts by following the call stack throug
 ### Testing Edge Cases
 
 Quickly test different input scenarios interactively without redeploying your contract.
-
+<!-- 
 ## Project Structure
 
 ```
@@ -213,7 +213,7 @@ soroban-debugger/
 │   └── utils/               Helper utilities
 ├── tests/                   Integration tests
 └── examples/                Example contracts and tutorials
-```
+``` -->
 
 ## Development
 
@@ -263,7 +263,7 @@ cargo fmt
 cargo clippy
 ```
 
-## Roadmap
+<!-- ## Roadmap
 
 ### Phase 1 (Current)
 - Basic CLI and command parsing
@@ -281,7 +281,7 @@ cargo clippy
 - WASM instrumentation for precise breakpoints
 - Source map support
 - Memory profiling
-- Performance analysis tools
+- Performance analysis tools -->
 
 ## License
 
