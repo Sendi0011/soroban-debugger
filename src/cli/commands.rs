@@ -108,13 +108,12 @@ pub fn run(args: RunArgs) -> Result<()> {
             .map_err(|e| anyhow::anyhow!("Invalid storage filter: {}", e))?;
         println!("\n--- Storage ---");
         
-        // Get storage data from the executor
-        let storage_data = engine.executor().get_storage()
-            .map_err(|e| anyhow::anyhow!("Failed to get storage data: {}", e))?;
-        
-        // Create inspector with storage data
-        let inspector = crate::inspector::StorageInspector::new(&storage_data);
+        // Note: Storage inspection from executor is not yet fully implemented
+        // For now, create an empty inspector to demonstrate the filtering interface
+        let inspector = crate::inspector::storage::StorageInspector::new();
         inspector.display_filtered(&storage_filter);
+        
+        println!("(Storage inspection from executor not yet fully implemented)");
     }
 
     Ok(())
@@ -128,7 +127,10 @@ fn run_dry_run(args: &RunArgs) -> Result<()> {
     let wasm_bytes = fs::read(&args.contract)
         .with_context(|| format!("Failed to read WASM file: {:?}", args.contract))?;
 
-    println!("[DRY RUN] Contract loaded successfully ({} bytes)", wasm_bytes.len());
+    println!(
+        "[DRY RUN] Contract loaded successfully ({} bytes)",
+        wasm_bytes.len()
+    );
 
     // Load network snapshot if provided
     if let Some(snapshot_path) = &args.network_snapshot {
@@ -210,7 +212,7 @@ fn run_dry_run(args: &RunArgs) -> Result<()> {
         let storage_filter = crate::inspector::storage::StorageFilter::new(&args.storage_filter)
             .map_err(|e| anyhow::anyhow!("Invalid storage filter: {}", e))?;
         println!("\n[DRY RUN] --- Storage (Post-Execution) ---");
-        
+
         // Note: Storage display would go here if get_storage() is implemented
         // For now, we'll show a message
         println!("[DRY RUN] Storage changes would be displayed here");
@@ -272,7 +274,7 @@ pub fn inspect(args: InspectArgs) -> Result<()> {
 
     // Get module information
     let module_info = crate::utils::wasm::get_module_info(&wasm_bytes)?;
-    
+
     // Display header
     println!("\n{}", "═".repeat(54));
     println!("  Soroban Contract Inspector");
@@ -293,7 +295,7 @@ pub fn inspect(args: InspectArgs) -> Result<()> {
         println!("\n{}", "─".repeat(54));
         println!("  Exported Functions");
         println!("  {}", "─".repeat(52));
-        
+
         let functions = crate::utils::wasm::parse_functions(&wasm_bytes)?;
         if functions.is_empty() {
             println!("  (No exported functions found)");
@@ -309,7 +311,7 @@ pub fn inspect(args: InspectArgs) -> Result<()> {
         println!("\n{}", "─".repeat(54));
         println!("  Contract Metadata");
         println!("  {}", "─".repeat(52));
-        
+
         match crate::utils::wasm::extract_contract_metadata(&wasm_bytes) {
             Ok(metadata) => {
                 if metadata.is_empty() {
@@ -425,10 +427,7 @@ pub fn optimize(args: OptimizeArgs) -> Result<()> {
                 );
             }
             Err(e) => {
-                eprintln!(
-                    "    ⚠  Failed to analyze function {}: {}",
-                    function_name, e
-                );
+                eprintln!("    ⚠  Failed to analyze function {}: {}", function_name, e);
                 // Continue with other functions instead of stopping
             }
         }
