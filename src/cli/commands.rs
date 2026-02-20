@@ -1,6 +1,7 @@
 use crate::cli::args::{InspectArgs, InteractiveArgs, OptimizeArgs, RunArgs, UpgradeCheckArgs};
 use crate::debugger::engine::DebuggerEngine;
 use crate::runtime::executor::ContractExecutor;
+use crate::simulator::SnapshotLoader;
 use crate::ui::tui::DebuggerUI;
 use crate::Result;
 use anyhow::Context;
@@ -15,6 +16,14 @@ pub fn run(args: RunArgs) -> Result<()> {
         .with_context(|| format!("Failed to read WASM file: {:?}", args.contract))?;
 
     println!("Contract loaded successfully ({} bytes)", wasm_bytes.len());
+
+    // Load network snapshot if provided
+    if let Some(snapshot_path) = &args.network_snapshot {
+        println!("\nLoading network snapshot: {:?}", snapshot_path);
+        let loader = SnapshotLoader::from_file(snapshot_path)?;
+        let loaded_snapshot = loader.apply_to_environment()?;
+        println!("{}", loaded_snapshot.format_summary());
+    }
 
     // Parse arguments if provided
     let parsed_args = if let Some(args_json) = &args.args {
@@ -66,6 +75,14 @@ pub fn interactive(args: InteractiveArgs) -> Result<()> {
         .with_context(|| format!("Failed to read WASM file: {:?}", args.contract))?;
 
     println!("Contract loaded successfully ({} bytes)", wasm_bytes.len());
+
+    // Load network snapshot if provided
+    if let Some(snapshot_path) = &args.network_snapshot {
+        println!("\nLoading network snapshot: {:?}", snapshot_path);
+        let loader = SnapshotLoader::from_file(snapshot_path)?;
+        let loaded_snapshot = loader.apply_to_environment()?;
+        println!("{}", loaded_snapshot.format_summary());
+    }
 
     // Create executor
     let executor = ContractExecutor::new(wasm_bytes)?;
@@ -137,6 +154,14 @@ pub fn optimize(args: OptimizeArgs) -> Result<()> {
         .with_context(|| format!("Failed to read WASM file: {:?}", args.contract))?;
 
     println!("Contract loaded successfully ({} bytes)", wasm_bytes.len());
+
+    // Load network snapshot if provided
+    if let Some(snapshot_path) = &args.network_snapshot {
+        println!("\nLoading network snapshot: {:?}", snapshot_path);
+        let loader = SnapshotLoader::from_file(snapshot_path)?;
+        let loaded_snapshot = loader.apply_to_environment()?;
+        println!("{}", loaded_snapshot.format_summary());
+    }
 
     let functions_to_analyze = if args.function.is_empty() {
         println!("No functions specified, analyzing all exported functions...");
