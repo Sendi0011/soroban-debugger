@@ -64,9 +64,12 @@ impl Formatter {
     }
 
     /// Auto-configure color output based on environment.
-    /// If NO_COLOR is set, colors are disabled.
+    /// If NO_COLOR is set, colors are disabled. Otherwise default terminal
+    /// detection is preserved for compatibility with non-color terminals.
     pub fn configure_colors_from_env() {
         let no_color = std::env::var_os("NO_COLOR").is_some();
-        Self::configure_colors(!no_color);
+        if no_color {
+            colored::control::set_override(false);
+        }
     }
 }
