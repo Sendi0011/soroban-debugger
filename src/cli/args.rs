@@ -36,7 +36,11 @@ pub struct Cli {
     pub verbose: bool,
 
     #[command(subcommand)]
-    pub command: Commands,
+    pub command: Option<Commands>,
+
+    /// Show detailed version information
+    #[arg(long)]
+    pub version_verbose: bool,
 }
 
 impl Cli {
