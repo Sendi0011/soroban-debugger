@@ -1,3 +1,5 @@
+use colored::Colorize;
+
 /// Pretty printing utilities for debugger output
 pub struct Formatter;
 
@@ -33,5 +35,38 @@ impl Formatter {
             mem_limit,
             (mem as f64 / mem_limit as f64) * 100.0
         )
+    }
+
+    /// Format an informational message in blue.
+    pub fn info(message: impl AsRef<str>) -> String {
+        message.as_ref().blue().to_string()
+    }
+
+    /// Format a success message in green.
+    pub fn success(message: impl AsRef<str>) -> String {
+        message.as_ref().green().to_string()
+    }
+
+    /// Format a warning message in yellow.
+    pub fn warning(message: impl AsRef<str>) -> String {
+        message.as_ref().yellow().to_string()
+    }
+
+    /// Format an error message in red.
+    pub fn error(message: impl AsRef<str>) -> String {
+        message.as_ref().red().to_string()
+    }
+
+    /// Configure whether ANSI colors are enabled.
+    /// Honors NO_COLOR automatically via `colored` and allows explicit override.
+    pub fn configure_colors(enable: bool) {
+        colored::control::set_override(enable);
+    }
+
+    /// Auto-configure color output based on environment.
+    /// If NO_COLOR is set, colors are disabled.
+    pub fn configure_colors_from_env() {
+        let no_color = std::env::var_os("NO_COLOR").is_some();
+        Self::configure_colors(!no_color);
     }
 }
