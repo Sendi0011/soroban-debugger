@@ -2,6 +2,22 @@ use clap::CommandFactory;
 use std::fs;
 use std::path::Path;
 
+// Mock crate root modules that src/cli/args.rs depends on
+mod config {
+    pub struct Config {
+        pub debug: DebugConfig,
+        pub output: OutputConfig,
+    }
+    pub struct DebugConfig {
+        pub breakpoints: Vec<String>,
+        pub verbosity: Option<u8>,
+    }
+    pub struct OutputConfig {
+        pub format: Option<String>,
+        pub show_events: Option<bool>,
+    }
+}
+
 #[path = "src/cli/args.rs"]
 mod args;
 
@@ -28,7 +44,8 @@ fn render_recursive(cmd: &clap::Command, out_dir: &Path, prefix: &str) -> std::i
         format!("{}-{}", prefix, cmd.get_name())
     };
 
-    let man = clap_mangen::Man::new(cmd.clone());
+    let cmd = cmd.clone().name(&name);
+    let man = clap_mangen::Man::new(cmd);
     let mut buffer: Vec<u8> = Default::default();
     man.render(&mut buffer)?;
     fs::write(out_dir.join(format!("{}.1", name)), buffer)?;
